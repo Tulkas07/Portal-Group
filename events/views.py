@@ -1,13 +1,9 @@
 import calendar
 from datetime import date
-
 from django.shortcuts import render
 from .models import Event
-
-
 import calendar
 from datetime import date
-
 from django.shortcuts import render
 from .models import Event
 
@@ -15,7 +11,7 @@ from .models import Event
 def event_list(request):
     events = Event.objects.order_by('date', 'time')
 
-    return render(request, 'event_list.html', {
+    return render(request, 'events/event_list.html', {
         'events': events
     })
 

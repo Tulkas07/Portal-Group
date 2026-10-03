@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'users',
     'forum',
     'events',
-    'grades'
+    'grades',
+    'surveys'
 ]
 
 MIDDLEWARE = [

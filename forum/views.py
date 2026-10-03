@@ -10,3 +10,4 @@ def topic_list(request):
         "topics": topics,
     }
     return render(request, "forum/topic_list.html", context)
+
