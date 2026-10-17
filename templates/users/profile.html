@@ -1,9 +1,15 @@
-<h1>Профиль</h1>
-<p>Логин: {{ user.username }}</p>
-<p>Email: {{ user.email }}</p>
-<p>Имя: {{ user.first_name }}</p>
-<p>Фамилия: {{ user.last_name }}</p>
-
-<a href="{% url 'logout' %}">
-    Выйти
-</a>
+{% extends "base.html" %}
+{% block title %}Профіль{% endblock %}
+{% block content %}
+<div class="narrow">
+  <h1>Профіль</h1>
+  <p class="muted">Логін: {{ user.get_username }}. Роль: {{ role }}.</p>
+  <form method="post" class="card">
+    {% csrf_token %}
+    {{ user_form.as_p }}
+    {{ profile_form.as_p }}
+    <button type="submit" class="btn">Зберегти зміни</button>
+  </form>
+  <p><a href="{% url 'password' %}">Змінити пароль</a></p>
+</div>
+{% endblock %}

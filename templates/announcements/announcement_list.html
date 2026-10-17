@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Оголошення{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Оголошення</h1>
+  {% if can_manage %}<a class="btn" href="{% url 'announcement-create' %}">Нове оголошення</a>{% endif %}
+</div>
+
+{% for a in announcements %}
+<article class="card">
+  <h2>{{ a.title }}</h2>
+  <div class="post-meta">{{ a.created_at|date:"d.m.Y H:i" }}{% if a.author %}, {{ a.author.get_username }}{% endif %}</div>
+  {{ a.text|linebreaks }}
+  {% if can_manage %}
+  <div class="actions">
+    <a class="btn btn-ghost btn-small" href="{% url 'announcement-edit' a.pk %}">Змінити</a>
+    <a class="btn btn-danger btn-small" href="{% url 'announcement-delete' a.pk %}">Видалити</a>
+  </div>
+  {% endif %}
+</article>
+{% empty %}
+<p class="empty-note">Оголошень поки немає.</p>
+{% endfor %}
+{% endblock %}

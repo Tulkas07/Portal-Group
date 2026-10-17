@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Події{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Події</h1>
+  <div class="actions">
+    <a class="btn btn-ghost" href="{% url 'calendar' %}">Календар</a>
+    {% if can_manage %}<a class="btn" href="{% url 'event_create' %}">Нова подія</a>{% endif %}
+  </div>
+</div>
+
+{% for event in events %}
+<article class="card{% if event.date < today %} past{% endif %}">
+  <h2>{{ event.title }}</h2>
+  <div class="post-meta">{{ event.date|date:"d.m.Y" }}{% if event.time %}, {{ event.time|time:"H:i" }}{% endif %}</div>
+  {{ event.description|linebreaks }}
+  {% if can_manage %}
+  <div class="actions">
+    <a class="btn btn-ghost btn-small" href="{% url 'event_edit' event.pk %}">Змінити</a>
+    <a class="btn btn-danger btn-small" href="{% url 'event_delete' event.pk %}">Видалити</a>
+  </div>
+  {% endif %}
+</article>
+{% empty %}
+<p class="empty-note">Подій поки немає.</p>
+{% endfor %}
+{% endblock %}

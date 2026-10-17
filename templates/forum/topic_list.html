@@ -1,3 +1,28 @@
-{% for topic in topics %}
-<h2>{{topic.title}}</h2>
+{% extends "base.html" %}
+{% block title %}Форум{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Форум</h1>
+  {% if can_manage %}
+  <div class="actions">
+    <a class="btn" href="{% url 'topic-create' %}">Нова гілка</a>
+    <a class="btn btn-ghost" href="{% url 'category-create' %}">Новий розділ</a>
+  </div>
+  {% endif %}
+</div>
+
+{% for category in categories %}
+<section class="card">
+  <h2>{{ category.name }}</h2>
+  {% if can_manage %}<p class="muted"><a href="{% url 'category-delete' category.pk %}">Видалити розділ</a></p>{% endif %}
+  <ul class="plain-list">
+    {% for topic in category.topics.all %}
+    <li><a href="{{ topic.get_absolute_url }}">{{ topic.title }}</a>
+      <span class="muted"> - {{ topic.author.get_username }}, {{ topic.created_at|date:"d.m.Y" }}, повідомлень: {{ topic.n_posts }}</span></li>
+    {% empty %}<li class="empty-note">У цьому розділі ще немає гілок.</li>{% endfor %}
+  </ul>
+</section>
+{% empty %}
+<p class="empty-note">Розділів форуму ще немає.{% if can_manage %} Почніть із кнопки «Новий розділ».{% endif %}</p>
 {% endfor %}
+{% endblock %}

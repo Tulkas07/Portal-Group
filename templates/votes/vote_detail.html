@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ vote.title }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'vote-list' %}">Усі голосування</a></p>
+<div class="page-head">
+  <h1>{{ vote.title }}</h1>
+  {% if can_manage %}
+  <div class="actions">
+    <a class="btn btn-ghost btn-small" href="{% url 'vote-edit' vote.pk %}">Змінити</a>
+    <a class="btn btn-danger btn-small" href="{% url 'vote-delete' vote.pk %}">Видалити</a>
+  </div>
+  {% endif %}
+</div>
+{% if vote.description %}<p>{{ vote.description|linebreaksbr }}</p>{% endif %}
+
+<section class="card">
+  <h2>Результати</h2>
+  {% for option in options %}
+  <div class="bar-row{% if my_ballot and my_ballot.option_id == option.pk %} mine{% endif %}">
+    <div class="top"><span>{{ option.text }}{% if my_ballot and my_ballot.option_id == option.pk %} (ваш вибір){% endif %}</span>
+      <span>{{ option.n }} ({{ option.percent }}%)</span></div>
+    <div class="bar-track"><span class="bar-fill" style="width: {{ option.percent }}%"></span></div>
+  </div>
+  {% endfor %}
+  <p class="muted">Усього голосів: {{ total }}</p>
+</section>
+
+<section class="card">
+  {% if user.is_authenticated %}
+    <h2>{% if my_ballot %}Змінити голос{% else %}Ваш голос{% endif %}</h2>
+    {% if my_ballot %}<p class="muted">Ви вже проголосували. Якщо проголосуєте знову, враховується лише останній голос.</p>{% endif %}
+    <form method="post">
+      {% csrf_token %}
+      {{ form.option.errors }}
+      {{ form.option }}
+      <div class="actions"><button type="submit" class="btn">Проголосувати</button></div>
+    </form>
+  {% else %}
+    <p><a href="{% url 'login' %}?next={{ request.path }}">Увійдіть</a>, щоб проголосувати. Результати бачать усі.</p>
+  {% endif %}
+</section>
+{% endblock %}

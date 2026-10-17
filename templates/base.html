@@ -1,0 +1,42 @@
+{% load static %}<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Portal Group{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="{% url 'home' %}">Portal Group</a>
+    <nav class="nav">
+      <a href="{% url 'announcement-list' %}">Оголошення</a>
+      <a href="{% url 'event_list' %}">Події</a>
+      <a href="{% url 'calendar' %}">Календар</a>
+      <a href="{% url 'topic-list' %}">Форум</a>
+      <a href="{% url 'diary-list' %}">Щоденник</a>
+      <a href="{% url 'survey-list' %}">Опитування</a>
+      <a href="{% url 'vote-list' %}">Голосування</a>
+      <a href="{% url 'material-list' %}">Матеріали</a>
+    </nav>
+    <div class="account">
+      {% if user.is_authenticated %}
+        <a href="{% url 'profile' %}">{{ user.get_username }}</a>
+        <form method="post" action="{% url 'logout' %}" class="inline">{% csrf_token %}<button type="submit" class="link">Вийти</button></form>
+      {% else %}
+        <a href="{% url 'login' %}">Увійти</a>
+        <a href="{% url 'register' %}">Реєстрація</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  {% if messages %}
+  <ul class="messages">{% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}</ul>
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

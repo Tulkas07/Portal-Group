@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Матеріали{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Матеріали</h1>
+  {% if can_manage %}<a class="btn" href="{% url 'material-create' %}">Додати матеріал</a>{% endif %}
+</div>
+
+<div class="grid">
+  {% for m in materials %}
+  <article class="card">
+    <h2>{{ m.title }}</h2>
+    {% if m.description %}<p>{{ m.description|linebreaksbr }}</p>{% endif %}
+
+    {% if m.youtube_id %}
+      <div class="video"><iframe src="https://www.youtube-nocookie.com/embed/{{ m.youtube_id }}" title="{{ m.title }}" loading="lazy" allowfullscreen></iframe></div>
+    {% elif m.url %}
+      <p><a href="{{ m.url }}" target="_blank" rel="noopener noreferrer">Відкрити посилання</a></p>
+    {% endif %}
+
+    {% if m.file %}
+      {% if m.file_kind == "image" %}<a href="{{ m.file.url }}"><img src="{{ m.file.url }}" alt="{{ m.title }}" loading="lazy"></a>
+      {% elif m.file_kind == "video" %}<video controls preload="metadata" src="{{ m.file.url }}"></video>
+      {% elif m.file_kind == "audio" %}<audio controls preload="metadata" src="{{ m.file.url }}"></audio>
+      {% elif m.file_kind == "pdf" %}<iframe class="pdf" src="{{ m.file.url }}" title="{{ m.title }}"></iframe>
+      {% endif %}
+      <p><a href="{{ m.file.url }}" download>Завантажити: {{ m.file_name }}</a></p>
+    {% endif %}
+
+    {% if can_manage %}
+    <div class="actions">
+      <a class="btn btn-ghost btn-small" href="{% url 'material-edit' m.pk %}">Змінити</a>
+      <a class="btn btn-danger btn-small" href="{% url 'material-delete' m.pk %}">Видалити</a>
+    </div>
+    {% endif %}
+  </article>
+  {% empty %}
+  <p class="empty-note">Матеріалів поки немає.</p>
+  {% endfor %}
+</div>
+{% endblock %}

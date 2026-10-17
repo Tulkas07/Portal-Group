@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Голосування{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Голосування</h1>
+  {% if can_manage %}<a class="btn" href="{% url 'vote-create' %}">Нове голосування</a>{% endif %}
+</div>
+
+{% for vote in votes %}
+<article class="card">
+  <h2><a href="{{ vote.get_absolute_url }}">{{ vote.title }}</a></h2>
+  {% if vote.description %}<p>{{ vote.description|truncatewords:30 }}</p>{% endif %}
+  <div class="post-meta">Голосів: {{ vote.n_ballots }}, створено {{ vote.created_at|date:"d.m.Y" }}</div>
+  <div class="actions">
+    <a class="btn btn-small" href="{{ vote.get_absolute_url }}">Відкрити</a>
+    {% if can_manage %}
+    <a class="btn btn-ghost btn-small" href="{% url 'vote-edit' vote.pk %}">Змінити</a>
+    <a class="btn btn-danger btn-small" href="{% url 'vote-delete' vote.pk %}">Видалити</a>
+    {% endif %}
+  </div>
+</article>
+{% empty %}
+<p class="empty-note">Голосувань поки немає.</p>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Наша група</h1>
+  <p>Новини, події, навчальні матеріали та спілкування групи в одному місці. Тут можна подивитися оцінки, взяти участь у голосуваннях та опитуваннях і написати на форумі.</p>
+  {% if not user.is_authenticated %}
+  <div class="actions"><a class="btn" style="background:var(--mark);color:var(--ink)" href="{% url 'register' %}">Створити акаунт</a>
+  <a class="btn btn-ghost" style="color:#fff;border-color:rgba(255,255,255,.5)" href="{% url 'login' %}">Увійти</a></div>
+  {% endif %}
+</section>
+
+<div class="grid">
+  <section class="card">
+    <h2>Оголошення</h2>
+    <ul class="plain-list">
+      {% for a in announcements %}
+      <li><strong>{{ a.title }}</strong><br><span class="muted">{{ a.created_at|date:"d.m.Y" }}</span>
+        <div>{{ a.text|truncatewords:22 }}</div></li>
+      {% empty %}<li class="empty-note">Оголошень поки немає.</li>{% endfor %}
+    </ul>
+    <a href="{% url 'announcement-list' %}">Усі оголошення</a>
+  </section>
+
+  <section class="card">
+    <h2>Найближчі події</h2>
+    <ul class="plain-list">
+      {% for e in events %}
+      <li><strong>{{ e.title }}</strong><br><span class="muted">{{ e.date|date:"d.m.Y" }}{% if e.time %}, {{ e.time|time:"H:i" }}{% endif %}</span></li>
+      {% empty %}<li class="empty-note">Запланованих подій немає.</li>{% endfor %}
+    </ul>
+    <a href="{% url 'event_list' %}">Усі події</a> &nbsp; <a href="{% url 'calendar' %}">Календар</a>
+  </section>
+
+  <section class="card">
+    <h2>Нове на форумі</h2>
+    <ul class="plain-list">
+      {% for t in topics %}
+      <li><a href="{{ t.get_absolute_url }}">{{ t.title }}</a><br><span class="muted">{{ t.category }}, {{ t.author.get_username }}</span></li>
+      {% empty %}<li class="empty-note">Гілок поки немає.</li>{% endfor %}
+    </ul>
+    <a href="{% url 'topic-list' %}">Перейти на форум</a>
+  </section>
+
+  <section class="card">
+    <h2>Голосування</h2>
+    <ul class="plain-list">
+      {% for v in votes %}<li><a href="{{ v.get_absolute_url }}">{{ v.title }}</a></li>
+      {% empty %}<li class="empty-note">Голосувань поки немає.</li>{% endfor %}
+    </ul>
+    <a href="{% url 'vote-list' %}">Усі голосування</a>
+  </section>
+
+  <section class="card">
+    <h2>Опитування</h2>
+    <ul class="plain-list">
+      {% for s in surveys %}<li><a href="{% url 'survey-take' s.pk %}">{{ s.title }}</a></li>
+      {% empty %}<li class="empty-note">Опитувань поки немає.</li>{% endfor %}
+    </ul>
+    <a href="{% url 'survey-list' %}">Усі опитування</a>
+  </section>
+
+  <section class="card">
+    <h2>Матеріали</h2>
+    <ul class="plain-list">
+      {% for m in materials %}<li>{{ m.title }}</li>
+      {% empty %}<li class="empty-note">Матеріалів поки немає.</li>{% endfor %}
+    </ul>
+    <a href="{% url 'material-list' %}">Усі матеріали</a>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Результати: {{ survey.title }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'survey-list' %}">Усі опитування</a></p>
+<div class="page-head">
+  <h1>Результати: {{ survey.title }}</h1>
+  <a class="btn btn-ghost" href="{% url 'survey-questions' survey.pk %}">Питання</a>
+</div>
+<p>Пройшли опитування: <strong>{{ total }}</strong></p>
+
+{% for q in questions %}
+<section class="card">
+  <h3>{{ q.text }}</h3>
+  {% if q.kind == "choice" %}
+    {% for row in q.rows %}
+    <div class="bar-row">
+      <div class="top"><span>{{ row.text }}</span><span>{{ row.n }} ({{ row.percent }}%)</span></div>
+      <div class="bar-track"><span class="bar-fill" style="width: {{ row.percent }}%"></span></div>
+    </div>
+    {% endfor %}
+    <p class="muted">Відповідей: {{ q.answered }}</p>
+  {% else %}
+    <ul class="plain-list">
+      {% for a in q.text_answers %}<li>{{ a.text }} <span class="muted">- {{ a.submission.user.get_username }}</span></li>
+      {% empty %}<li class="empty-note">Відповідей поки немає.</li>{% endfor %}
+    </ul>
+  {% endif %}
+</section>
+{% empty %}
+<p class="empty-note">У цьому опитуванні ще немає питань.</p>
+{% endfor %}
+
+{% if submissions %}
+<details class="card">
+  <summary>Хто проходив ({{ total }})</summary>
+  <ul class="plain-list">
+    {% for s in submissions %}<li>{{ s.user.get_full_name|default:s.user.get_username }} <span class="muted">{{ s.created_at|date:"d.m.Y H:i" }}</span></li>{% endfor %}
+  </ul>
+</details>
+{% endif %}
+{% endblock %}

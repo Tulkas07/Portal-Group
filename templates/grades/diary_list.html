@@ -1,5 +1,44 @@
-{% for grade in grades %}
-<p> 
-    {{ grade.student }} -- {{ grade.subject }}: {{ grade.grade }}
-</p>
-{% endfor %}
+{% extends "base.html" %}
+{% block title %}Електронний щоденник{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Електронний щоденник</h1>
+  {% if is_admin %}
+  <div class="actions">
+    <a class="btn" href="{% url 'grade-create' %}">Додати оцінку</a>
+    <a class="btn btn-ghost" href="{% url 'student-create' %}">Додати учня</a>
+    <a class="btn btn-ghost" href="{% url 'subject-create' %}">Додати предмет</a>
+  </div>
+  {% endif %}
+</div>
+
+{% if rows %}
+<div class="table-wrap">
+  <table>
+    <tr>
+      <th>Учень</th><th>Група</th>
+      {% for subject in subjects %}<th>{{ subject.subject }}</th>{% endfor %}
+      <th>Середній</th>
+    </tr>
+    {% for row in rows %}
+    <tr>
+      <td>{{ row.student.user.get_full_name|default:row.student.user.get_username }}</td>
+      <td>{{ row.student.group }}</td>
+      {% for cell in row.cells %}
+      <td>
+        {% for g in cell.grades %}
+          {% if is_admin %}<a class="grade" href="{% url 'grade-edit' g.pk %}" title="Змінити або видалити">{{ g.grade }}</a>
+          {% else %}<span class="grade">{{ g.grade }}</span>{% endif %}
+        {% endfor %}
+        {% if is_admin %}<a class="grade-add" href="{% url 'grade-create' %}?student={{ row.student.pk }}&amp;subject={{ cell.subject.pk }}" title="Додати оцінку">+</a>{% endif %}
+      </td>
+      {% endfor %}
+      <td class="avg">{{ row.average|default_if_none:"-" }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% else %}
+<p class="empty-note">Учнів у щоденнику ще немає.{% if is_admin %} Додайте учня та предмет, потім оцінки.{% endif %}</p>
+{% endif %}
+{% endblock %}

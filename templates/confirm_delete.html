@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Видалення{% endblock %}
+{% block content %}
+<div class="narrow">
+  <h1>Видалити?</h1>
+  <form method="post" class="card">
+    {% csrf_token %}
+    <p>«{{ object }}» буде видалено без можливості відновлення. Пов'язані дані (відповіді, голоси, повідомлення) теж зникнуть.</p>
+    <div class="actions">
+      <button type="submit" class="btn btn-danger">Видалити</button>
+      <a class="btn btn-ghost" href="{{ request.META.HTTP_REFERER|default:'/' }}">Скасувати</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

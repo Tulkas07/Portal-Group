@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Питання: {{ survey.title }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'survey-list' %}">Усі опитування</a></p>
+<div class="page-head">
+  <h1>Питання: {{ survey.title }}</h1>
+  <div class="actions">
+    <a class="btn" href="{% url 'question-create' survey.pk %}">Додати питання</a>
+    <a class="btn btn-ghost" href="{% url 'survey-results' survey.pk %}">Результати</a>
+  </div>
+</div>
+
+{% if questions %}
+<div class="table-wrap">
+  <table>
+    <tr><th>Крок</th><th>Питання</th><th>Тип</th><th></th></tr>
+    {% for q in questions %}
+    <tr>
+      <td>{{ q.page }}</td>
+      <td>{{ q.text }}{% if not q.required %} <span class="muted">(необов'язкове)</span>{% endif %}
+        {% if q.kind == "choice" %}<div class="muted">{% for c in q.choices.all %}{{ c.text }}{% if not forloop.last %}; {% endif %}{% endfor %}</div>{% endif %}</td>
+      <td>{{ q.get_kind_display }}</td>
+      <td><a href="{% url 'question-edit' q.pk %}">Змінити</a> &nbsp; <a href="{% url 'question-delete' q.pk %}">Видалити</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+<p class="muted">Питання з однаковим номером кроку показуються на одній сторінці. Щоб зробити багатоетапне опитування, дайте питанням різні номери кроків.</p>
+{% else %}
+<p class="empty-note">Питань ще немає. Додайте перше.</p>
+{% endif %}
+{% endblock %}

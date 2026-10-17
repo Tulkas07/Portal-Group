@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Календар подій{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Календар подій</h1>
+  <div class="actions">
+    <a class="btn btn-ghost" href="{% url 'event_list' %}">Список подій</a>
+    {% if can_manage %}<a class="btn" href="{% url 'event_create' %}">Нова подія</a>{% endif %}
+  </div>
+</div>
+
+<div class="cal-nav">
+  <a class="btn btn-ghost btn-small" href="?year={{ previous_year }}&amp;month={{ previous_month }}">Попередній місяць</a>
+  <h2>{{ month_name }} {{ year }}</h2>
+  <a class="btn btn-ghost btn-small" href="?year={{ next_year }}&amp;month={{ next_month }}">Наступний місяць</a>
+</div>
+
+<div class="table-wrap">
+  <table class="calendar">
+    <tr><th>Пн</th><th>Вт</th><th>Ср</th><th>Чт</th><th>Пт</th><th>Сб</th><th>Нд</th></tr>
+    {% for week in calendar %}
+    <tr>
+      {% for cell in week %}
+      {% if cell.day %}
+      <td{% if cell.is_today %} class="today"{% endif %}>
+        <span class="num">{{ cell.day }}</span>
+        {% for event in cell.events %}
+          <span class="chip">{% if event.time %}{{ event.time|time:"H:i" }} {% endif %}{{ event.title }}</span>
+        {% endfor %}
+      </td>
+      {% else %}<td class="empty"></td>{% endif %}
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

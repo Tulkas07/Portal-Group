@@ -1,21 +1,30 @@
-<h1>Опросы</h1>
+{% extends "base.html" %}
+{% block title %}Опитування{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Опитування</h1>
+  {% if can_manage %}<a class="btn" href="{% url 'survey-create' %}">Нове опитування</a>{% endif %}
+</div>
 
 {% for survey in surveys %}
-
-    <div>
-        <h2>{{ survey.title }}</h2>
-
-        <p>{{ survey.description }}</p>
-
-        <a href="{% url 'survey_start' survey.id %}">
-            Пройти опрос
-        </a>
-    </div>
-
-    <hr>
-
+<article class="card">
+  <h2>{{ survey.title }}</h2>
+  {% if survey.description %}<p>{{ survey.description|linebreaksbr }}</p>{% endif %}
+  <div class="post-meta">Питань: {{ survey.n_questions }}, пройшли: {{ survey.n_submissions }}
+    {% if survey.pk in done %}. Ви вже проходили це опитування.{% endif %}</div>
+  <div class="actions">
+    {% if survey.n_questions %}
+    <a class="btn btn-small" href="{% url 'survey-take' survey.pk %}">{% if survey.pk in done %}Пройти знову{% else %}Пройти{% endif %}</a>
+    {% endif %}
+    {% if can_manage %}
+    <a class="btn btn-ghost btn-small" href="{% url 'survey-results' survey.pk %}">Результати</a>
+    <a class="btn btn-ghost btn-small" href="{% url 'survey-questions' survey.pk %}">Питання</a>
+    <a class="btn btn-ghost btn-small" href="{% url 'survey-edit' survey.pk %}">Змінити</a>
+    <a class="btn btn-danger btn-small" href="{% url 'survey-delete' survey.pk %}">Видалити</a>
+    {% endif %}
+  </div>
+</article>
 {% empty %}
-
-    <p>Опросов пока нет.</p>
-
+<p class="empty-note">Опитувань поки немає.</p>
 {% endfor %}
+{% endblock %}

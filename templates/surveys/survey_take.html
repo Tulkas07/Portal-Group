@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ survey.title }}{% endblock %}
+{% block content %}
+<div class="narrow">
+  <h1>{{ survey.title }}</h1>
+  <p class="progress">Крок {{ step }} з {{ total_steps }}</p>
+  <form method="post" class="card">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="actions">
+      {% if prev_step %}<a class="btn btn-ghost" href="{% url 'survey-take' survey.pk prev_step %}">Назад</a>{% endif %}
+      <button type="submit" class="btn">{% if is_last %}Завершити{% else %}Далі{% endif %}</button>
+    </div>
+  </form>
+  <p class="muted">Якщо ви вже проходили це опитування, збережеться лише останній результат.</p>
+</div>
+{% endblock %}

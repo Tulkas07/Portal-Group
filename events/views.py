@@ -1,76 +1,70 @@
 import calendar
-from datetime import date
+
+from django.urls import reverse_lazy
 from django.shortcuts import render
+from django.utils import timezone
+from django.views.generic import CreateView, DeleteView, UpdateView
+
+from core.generic import DeletePage, FormPage
+from core.permissions import ManagerRequiredMixin
+
+from .forms import EventForm
 from .models import Event
-import calendar
-from datetime import date
-from django.shortcuts import render
-from .models import Event
+
+MONTHS = ["січень", "лютий", "березень", "квітень", "травень", "червень",
+          "липень", "серпень", "вересень", "жовтень", "листопад", "грудень"]
 
 
 def event_list(request):
-    events = Event.objects.order_by('date', 'time')
-
-    return render(request, 'events/event_list.html', {
-        'events': events
-    })
+    events = Event.objects.order_by("date", "time")
+    return render(request, "events/event_list.html", {"events": events, "today": timezone.localdate()})
 
 
 def calendar_view(request):
-    today = date.today()
-
-    year = int(request.GET.get('year', today.year))
-    month = int(request.GET.get('month', today.month))
-
-    cal = calendar.monthcalendar(year, month)
-
-    events = Event.objects.filter(
-        date__year=year,
-        date__month=month
-    )
+    today = timezone.localdate()
+    try:
+        year = int(request.GET.get("year", today.year))
+        month = int(request.GET.get("month", today.month))
+        if not (1 <= month <= 12 and 1900 <= year <= 2100):
+            raise ValueError
+    except ValueError:
+        year, month = today.year, today.month
 
     events_by_day = {}
-
-    for event in events:
+    for event in Event.objects.filter(date__year=year, date__month=month).order_by("time"):
         events_by_day.setdefault(event.date.day, []).append(event)
 
-    calendar_days = []
+    weeks = [
+        [{"day": day, "events": events_by_day.get(day, []),
+          "is_today": (year, month, day) == (today.year, today.month, today.day)} for day in week]
+        for week in calendar.monthcalendar(year, month)
+    ]
 
-    for week in cal:
-        week_data = []
+    previous_year, previous_month = (year - 1, 12) if month == 1 else (year, month - 1)
+    next_year, next_month = (year + 1, 1) if month == 12 else (year, month + 1)
 
-        for day in week:
-            week_data.append({
-                'day': day,
-                'events': events_by_day.get(day, [])
-            })
-
-        calendar_days.append(week_data)
-
-    # Предыдущий месяц
-    if month == 1:
-        previous_month = 12
-        previous_year = year - 1
-    else:
-        previous_month = month - 1
-        previous_year = year
-
-    # Следующий месяц
-    if month == 12:
-        next_month = 1
-        next_year = year + 1
-    else:
-        next_month = month + 1
-        next_year = year
-
-    return render(request, 'calendar.html', {
-        'calendar': calendar_days,
-        'year': year,
-        'month': month,
-
-        'previous_year': previous_year,
-        'previous_month': previous_month,
-
-        'next_year': next_year,
-        'next_month': next_month,
+    return render(request, "events/calendar.html", {
+        "calendar": weeks, "year": year, "month": month, "month_name": MONTHS[month - 1],
+        "previous_year": previous_year, "previous_month": previous_month,
+        "next_year": next_year, "next_month": next_month,
     })
+
+
+class EventCreate(ManagerRequiredMixin, FormPage, CreateView):
+    model = Event
+    form_class = EventForm
+    page_title = "Нова подія"
+    success_url = reverse_lazy("event_list")
+
+
+class EventUpdate(ManagerRequiredMixin, FormPage, UpdateView):
+    model = Event
+    form_class = EventForm
+    page_title = "Редагування події"
+    delete_url_name = "event_delete"
+    success_url = reverse_lazy("event_list")
+
+
+class EventDelete(ManagerRequiredMixin, DeletePage, DeleteView):
+    model = Event
+    success_url = reverse_lazy("event_list")
